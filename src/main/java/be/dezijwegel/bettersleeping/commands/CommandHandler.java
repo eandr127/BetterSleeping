@@ -42,6 +42,7 @@ public class CommandHandler implements CommandExecutor {
         BsCommand buffs     = new BuffsCommand(messenger, buffsHandler, bypassChecker);
         BsCommand sleep     = new SleepCommand(messenger, sleepHandlers);
         BsCommand shout     = new ShoutCommand(messenger);
+        BsCommand veto      = new VetoCommand(messenger);
 
         playerCommands.put("version",   version );
         playerCommands.put("help"   ,   help    );
@@ -50,6 +51,7 @@ public class CommandHandler implements CommandExecutor {
         playerCommands.put("buffs"  ,   buffs   );
         playerCommands.put("sleep"  ,   sleep   );
         playerCommands.put("shout"  ,   shout   );
+        playerCommands.put("veto"   ,   veto    );
 
         consoleCommands.put("version",  version );
         consoleCommands.put("help",     help    );
@@ -61,6 +63,7 @@ public class CommandHandler implements CommandExecutor {
         shortcuts.put("r", "reload");
         shortcuts.put("s", "status");
         shortcuts.put("b", "buffs");
+        shortcuts.put("ns", "veto");
 
         plugin.getCommand("bettersleeping").setTabCompleter(new TabCompleter(playerCommands, consoleCommands));
     }

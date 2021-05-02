@@ -110,6 +110,14 @@ buff_received: {buff_received}
 debuff_received: {debuff_received}
 
 
+# ------ #
+# Vetoes |
+# ------ #
+
+# Players who slept AND receive buffs will get this message
+veto_status: {veto_status}
+
+
 # -------------------- #
 # Commands/Permissions |
 # -------------------- #

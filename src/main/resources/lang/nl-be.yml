@@ -110,6 +110,14 @@ buff_received: "Je voelt je uitgerust en krijgt daardoor [<var>.een verbetering.
 debuff_received: "Je hebt niet geslapen en bent moe, hierdoor krijg je [<var>.een nadeel.<var> nadelen]."
 
 
+# ------ #
+# Vetoes |
+# ------ #
+
+# Players who slept AND receive buffs will get this message
+veto_status: "Vetostatus: <var>"
+
+
 # -------------------- #
 # Commands/Permissions |
 # -------------------- #

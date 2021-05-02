@@ -110,6 +110,14 @@ buff_received: "Te sientes lleno de energia, recibiste [<var>.un efecto positivo
 debuff_received: "No has dormido y te sientes cansado, recibiste [<var>.un efecto negativo.<var> efectos negativos]."
 
 
+# ------ #
+# Vetoes |
+# ------ #
+
+# Players who slept AND receive buffs will get this message
+veto_status: "Estado de veto: <var>"
+
+
 # -------------------- #
 # Commands/Permissions |
 # -------------------- #

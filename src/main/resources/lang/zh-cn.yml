@@ -110,6 +110,14 @@ buff_received: "你休息得很好，获得了 <var> 种有益状态效果。"
 debuff_received: "你没有睡觉，非常疲惫，因此获得了 <var> 种负面状态效果。"
 
 
+# ------ #
+# Vetoes |
+# ------ #
+
+# Players who slept AND receive buffs will get this message
+veto_status: "否决权状态：<var>"
+
+
 # -------------------- #
 # Commands/Permissions |
 # -------------------- #

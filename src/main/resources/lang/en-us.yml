@@ -110,6 +110,14 @@ buff_received: "You feel well rested and received [<var>.a buff.<var> buffs]."
 debuff_received: "You did not sleep and feel tired, you received [<var>.a debuff.<var> debuffs]."
 
 
+# ------ #
+# Vetoes |
+# ------ #
+
+# Players who slept AND receive buffs will get this message
+veto_status: "Veto status: <var>"
+
+
 # -------------------- #
 # Commands/Permissions |
 # -------------------- #
