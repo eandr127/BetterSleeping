@@ -15,12 +15,14 @@ import java.util.stream.Collectors;
 public class VetoCommand extends BsCommand {
 
     private final VetoList vetoList;
+    private final ShoutCommand beg;
 
     public VetoCommand(Messenger messenger, VetoList vetoList)
     {
         super( messenger );
 
         this.vetoList = vetoList;
+        this.beg = new ShoutCommand(messenger);
     }
 
 
@@ -55,12 +57,15 @@ public class VetoCommand extends BsCommand {
             }
             else if(arguments[2].equals("all")) {
                 for (Player p : playerSender.getWorld().getPlayers()) {
+                    boolean playerVetoed = vetoList.getVetoStatus(p).isVeto();
                     messenger.sendMessage(commandSender, p.getDisplayName() + ": <var>", true, new MsgEntry("<var>",
-                            String.valueOf(isVetoed ? CHECKMARK : X)));
+                            String.valueOf(playerVetoed ? CHECKMARK : X)));
                 }
             } else {
                 commandSender.sendMessage(ChatColor.RED + "The unknown option '" + arguments[2] + "'. Execute /bs veto get [all]");
             }
+        } else if (flag.equals("beg")) {
+            beg.execute(commandSender, command, alias, new String[]{arguments[1]});
         }
         else {
             Optional<VetoSetting> setting = VetoSetting.settingFromString(flag.toLowerCase());

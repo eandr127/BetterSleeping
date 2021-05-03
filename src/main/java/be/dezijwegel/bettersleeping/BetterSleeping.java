@@ -215,9 +215,10 @@ public class BetterSleeping extends JavaPlugin implements Reloadable {
         // Determine if able and configured to post messages in chat or action bar
         
         Messenger messenger;
+        ScreenMessenger screenMessenger = new ScreenMessenger(this, messages, bypassChecker, bypassConfig.getBoolean("send_messages"), fileConfig.getBoolean("shorten_prefix"));;
         if (fileConfig.getBoolean("action_bar_messages") && SpigotChecker.hasSpigot())
         {
-            messenger = new ScreenMessenger(this, messages, bypassChecker, bypassConfig.getBoolean("send_messages"), fileConfig.getBoolean("shorten_prefix"));
+            messenger = screenMessenger;
             logger.log("Messages will be shown in the action bar");
         }
         else
@@ -274,7 +275,7 @@ public class BetterSleeping extends JavaPlugin implements Reloadable {
                         int sleepDelay = sleepConfig.getInt("setter.delay");
                         timeChanger = new TimeSetter(world, sleepDelay);
                     }
-                    SleepersRunnable runnable = new SleepersRunnable(world, messenger, timeChanger, calculator, vetoList);
+                    SleepersRunnable runnable = new SleepersRunnable(world, messenger, screenMessenger, timeChanger, calculator, vetoList);
                     runnables.put(world, runnable);
                     numWorlds++;
                 } else {

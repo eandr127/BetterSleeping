@@ -41,7 +41,7 @@ public class ShoutCommand extends BsCommand{
         }
 
         cooldownMap.put( world, System.currentTimeMillis() );
-        messenger.sendMessage(world.getPlayers(), "Please go to bed, some players want to sleep.", false);
+        messenger.sendMessage(world.getPlayers(), "Please go to bed, some players wish to skip the night.", false);
         return true;
     }
 

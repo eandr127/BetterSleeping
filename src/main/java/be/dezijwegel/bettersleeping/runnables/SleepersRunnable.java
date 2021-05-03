@@ -4,6 +4,7 @@ import be.dezijwegel.bettersleeping.events.custom.TimeSetToDayEvent;
 import be.dezijwegel.bettersleeping.interfaces.SleepersNeededCalculator;
 import be.dezijwegel.bettersleeping.messaging.Messenger;
 import be.dezijwegel.bettersleeping.messaging.MsgEntry;
+import be.dezijwegel.bettersleeping.messaging.ScreenMessenger;
 import be.dezijwegel.bettersleeping.sleepersneeded.AbsoluteNeeded;
 import be.dezijwegel.bettersleeping.timechange.TimeChanger;
 import be.dezijwegel.bettersleeping.util.Debugger;
@@ -31,6 +32,7 @@ public class SleepersRunnable extends BukkitRunnable {
     private final SleepersNeededCalculator sleepersCalculator;
     private final TimeChanger timeChanger;
     private final Messenger messenger;
+    private final ScreenMessenger screenMessenger;
     private final VetoList vetoList;
 
     // Variables for internal working
@@ -43,9 +45,10 @@ public class SleepersRunnable extends BukkitRunnable {
     /**
      * A runnable that will detect time changes and its cause
      */
-    public SleepersRunnable(World world, Messenger messenger, TimeChanger timeChanger, SleepersNeededCalculator sleepersCalculator, VetoList vetoList) {
+    public SleepersRunnable(World world, Messenger messenger, ScreenMessenger screenMessenger, TimeChanger timeChanger, SleepersNeededCalculator sleepersCalculator, VetoList vetoList) {
         this.world = world;
         this.messenger = messenger;
+        this.screenMessenger = screenMessenger;
         this.oldTime = world.getTime();
         this.timeChanger = timeChanger;
         this.sleepersCalculator = sleepersCalculator;
@@ -111,6 +114,11 @@ public class SleepersRunnable extends BukkitRunnable {
 
         boolean isEnoughSleepingEmpty = false;
         if (this.sleepers.size() == this.numNeeded && noVetoedSleep) {
+            List<Player> players = this.world.getPlayers();
+            players.removeIf(x -> vetoList.getVetoStatus(x).isVeto() || sleepers.contains(x.getUniqueId()) );
+
+            screenMessenger.sendMessage(players, "At least one player is sleeping. Type /ns if you wish stay up for this night.", false);
+
             isEnoughSleepingEmpty = ! this.messenger.sendMessage(
                 this.world.getPlayers(), "enough_sleeping", false,
                 new MsgEntry("<player>", ChatColor.stripColor(player.getName())),
@@ -118,6 +126,12 @@ public class SleepersRunnable extends BukkitRunnable {
                 new MsgEntry("<needed_sleeping>", "" + this.numNeeded),
                 new MsgEntry("<remaining_sleeping>", "" + remaining)
             );
+        }
+
+        if (this.sleepers.size() < this.numNeeded || !noVetoedSleep) {
+            List<Player> players = this.world.getPlayers();
+            players.removeIf( x -> !vetoList.getVetoStatus(x).isVeto() || sleepers.contains(x.getUniqueId()) );
+            screenMessenger.sendMessage(players, "At least one player is sleeping, but your preference is set to stay up during the night.", false);
         }
 
         if (isEnoughSleepingEmpty || this.sleepers.size() < this.numNeeded) {

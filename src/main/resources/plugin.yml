@@ -23,6 +23,7 @@ permissions:
             bettersleeping.version: true
             bettersleeping.shout: true
             bettersleeping.sleepcommand: true
+            bettersleeping.veto: true
     bettersleeping.user:
         description: Collection of commands that default users may want access to
         children:
@@ -34,6 +35,7 @@ permissions:
             bettersleeping.version: false
             bettersleeping.shout: true
             bettersleeping.sleepcommand: false
+            bettersleeping.veto: true
     bettersleeping.admin:
         description: Collection of commands that admins may want access to (all permissions except bypass)
         children:
@@ -45,6 +47,7 @@ permissions:
             bettersleeping.version: true
             bettersleeping.shout: true
             bettersleeping.sleepcommand: false
+            bettersleeping.veto: true
     bettersleeping.reload:
         description: Gives access to /bs reload, which will reload the BetterSleeping config files
         default: op
@@ -72,3 +75,5 @@ permissions:
     bettersleeping.shout:
         description: Gives access to /bs shout, which will request all players in that world to sleep. Has a per-world cooldown.
         default: true
+    bettersleeping.veto:
+        description: Gives access to /bs veto, which handles vetoing of sleeping in the world.
