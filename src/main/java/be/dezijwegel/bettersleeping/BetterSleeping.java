@@ -245,7 +245,6 @@ public class BetterSleeping extends JavaPlugin implements Reloadable {
         }
 
         VetoList vetoList = new ObjectiveVetoList("sleepVetoList", Objects.requireNonNull(getServer().getScoreboardManager()).getMainScoreboard());
-        vetoList.initializeList();
 
         // get a runnable for each world
 

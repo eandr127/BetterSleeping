@@ -18,6 +18,13 @@ public class ObjectiveVetoList extends VetoList {
         this.scoreboard = scoreboard;
     }
 
+    private void initializeList() {
+        Objective objective = scoreboard.getObjective(objectiveName);
+        if (objective == null) {
+            scoreboard.registerNewObjective(objectiveName, "dummy", "Veto List", RenderType.HEARTS);
+        }
+    }
+
     @NotNull
     private Score getScore(@NotNull OfflinePlayer player) {
         initializeList();
@@ -31,25 +38,41 @@ public class ObjectiveVetoList extends VetoList {
     }
 
     @Override
-    public void initializeList() {
-        Objective objective = scoreboard.getObjective(objectiveName);
-        if (objective == null) {
-            scoreboard.registerNewObjective(objectiveName, "dummy", "Veto List", RenderType.HEARTS);
-        }
-    }
-
-    @Override
-    public boolean getVetoStatus(@NotNull OfflinePlayer player) {
+    public VetoSetting getVetoStatus(@NotNull OfflinePlayer player) {
         Score score = getScore(player);
         if (!score.isScoreSet()) {
             score.setScore(0);
         }
 
-        return score.getScore() != 0;
+        int scoreValue = score.getScore();
+        if (scoreValue < 0) {
+            return VetoSetting.ALWAYS;
+        } else if (scoreValue > 0) {
+            // This might change to number of nights to not skip
+            return VetoSetting.ONE_NIGHT;
+        } else {
+            return VetoSetting.NEVER;
+        }
     }
 
     @Override
-    public void setVetoStatus(@NotNull OfflinePlayer player, boolean veto) {
-        getScore(player).setScore(veto ? 1 : 0);
+    public void setVetoStatus(@NotNull OfflinePlayer player, @NotNull VetoSetting veto) {
+        Objects.requireNonNull(veto);
+
+        int scoreValue;
+        switch(veto) {
+            case ALWAYS:
+                scoreValue = -1;
+                break;
+            case NEVER:
+                scoreValue = 0;
+                break;
+            case ONE_NIGHT:
+                scoreValue = 1;
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown veto settting: " + veto);
+        }
+        getScore(player).setScore(scoreValue);
     }
 }

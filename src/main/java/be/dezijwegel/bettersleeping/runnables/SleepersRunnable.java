@@ -107,7 +107,7 @@ public class SleepersRunnable extends BukkitRunnable {
 
         boolean noVetoedSleep = this.world.getPlayers()
                 .stream()
-                .noneMatch(p -> vetoList.getVetoStatus(p) && !this.sleepers.contains(p.getUniqueId()));
+                .noneMatch(p -> vetoList.getVetoStatus(p).isVeto() && !this.sleepers.contains(p.getUniqueId()));
 
         boolean isEnoughSleepingEmpty = false;
         if (this.sleepers.size() == this.numNeeded && noVetoedSleep) {
@@ -170,7 +170,7 @@ public class SleepersRunnable extends BukkitRunnable {
                 this.sleepers.size() < previousSize &&
                 previousSize >= this.numNeeded &&
                 this.sleepers.size() < this.numNeeded;
-        boolean vetoedSleeperLeft = vetoList.getVetoStatus(player);
+        boolean vetoedSleeperLeft = vetoList.getVetoStatus(player).isVeto();
         if ((tooFewSleepers || vetoedSleeperLeft) && !this.timeChanger.removedStorm(false)
         ) {
             int remaining = this.numNeeded - this.sleepers.size();
@@ -256,6 +256,11 @@ public class SleepersRunnable extends BukkitRunnable {
 
             debugger.debug( "Night skip detected in world " + this.world.getName() + ". Cause: " + cause.toString(), Debugger.DebugLevel.INFORMATIVE);
 
+            // Doesn't consider players that logged out, but that should be ok
+            for (Player p : this.world.getPlayers()) {
+                vetoList.setVetoStatus(p, vetoList.getVetoStatus(p).getNextMorningState());
+            }
+
             if (cause != TimeSetToDayEvent.Cause.NATURAL) {
                 // Send good morning, only when the players slept
                 messenger.sendMessage(this.world.getPlayers(), "morning_message", false);
@@ -294,7 +299,7 @@ public class SleepersRunnable extends BukkitRunnable {
 
         boolean noVetoedSleep = this.world.getPlayers()
                 .stream()
-                .noneMatch(p -> vetoList.getVetoStatus(p) && !this.sleepers.contains(p.getUniqueId()));
+                .noneMatch(p -> vetoList.getVetoStatus(p).isVeto() && !this.sleepers.contains(p.getUniqueId()));
 
         if (this.sleepers.size() >= this.numNeeded && noVetoedSleep) {
             this.timeChanger.tick(this.sleepers.size(), this.numNeeded);

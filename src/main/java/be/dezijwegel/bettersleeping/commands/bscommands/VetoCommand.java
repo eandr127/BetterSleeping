@@ -3,13 +3,14 @@ package be.dezijwegel.bettersleeping.commands.bscommands;
 import be.dezijwegel.bettersleeping.messaging.Messenger;
 import be.dezijwegel.bettersleeping.messaging.MsgEntry;
 import be.dezijwegel.bettersleeping.vetolist.VetoList;
+import be.dezijwegel.bettersleeping.vetolist.VetoSetting;
 import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class VetoCommand extends BsCommand {
 
@@ -34,22 +35,49 @@ public class VetoCommand extends BsCommand {
 
         Player playerSender = (Player)commandSender;
 
+        String flag;
         if (arguments.length < 2)
         {
-            boolean isVetoed = vetoList.getVetoStatus(playerSender);
+            flag = VetoSetting.ONE_NIGHT.getName();
+        }
+        else {
+            flag = arguments[1];
+        }
+
+        if (flag.equals("get")) {
+            boolean isVetoed = vetoList.getVetoStatus(playerSender).isVeto();
 
             final char CHECKMARK = '\u2714', X = '\u2718';
-            messenger.sendMessage(commandSender, "veto_status", true, new MsgEntry("<var>",
-                    String.valueOf(isVetoed ? CHECKMARK : X)));
+
+            if (arguments.length < 3) {
+                messenger.sendMessage(commandSender, "veto_status", true, new MsgEntry("<var>",
+                        String.valueOf(isVetoed ? CHECKMARK : X)));
+            }
+            else if(arguments[2].equals("all")) {
+                for (Player p : playerSender.getWorld().getPlayers()) {
+                    messenger.sendMessage(commandSender, p.getDisplayName() + ": <var>", true, new MsgEntry("<var>",
+                            String.valueOf(isVetoed ? CHECKMARK : X)));
+                }
+            } else {
+                commandSender.sendMessage(ChatColor.RED + "The unknown option '" + arguments[2] + "'. Execute /bs veto get [all]");
+            }
         }
-        else
-        {
-            Optional<VetoSetting> setting = VetoSetting.settingFromString(arguments[1].toLowerCase());
+        else {
+            Optional<VetoSetting> setting = VetoSetting.settingFromString(flag.toLowerCase());
 
             setting.ifPresentOrElse(x -> {
-                commandSender.sendMessage("Setting veto status to " + x.value);
-                vetoList.setVetoStatus(playerSender, x.value);
-            }, () -> commandSender.sendMessage(ChatColor.RED + "The unknown option '" + arguments[1] + "'. Execute /bs veto [on/off]"));
+                // Using shorthand shouldn't remove existing veto
+                if (arguments.length < 2 && vetoList.getVetoStatus(playerSender).isVeto()) {
+                    commandSender.sendMessage(ChatColor.RED + "Already vetoing");
+                    return;
+                }
+
+                commandSender.sendMessage("Setting veto status to " + x.getName());
+                vetoList.setVetoStatus(playerSender, x);
+            }, () -> commandSender.sendMessage(ChatColor.RED + "The unknown option '" + arguments[1] + "'. Execute /bs veto [" +
+                    Arrays.stream(VetoSetting.values())
+                            .map(VetoSetting::getName)
+                            .collect(Collectors.joining("/")) + "]"));
         }
 
         return true;
@@ -66,7 +94,7 @@ public class VetoCommand extends BsCommand {
     @Override
     public List<String> getDescription()
     {
-        return new ArrayList<String>() {{
+        return new ArrayList<>() {{
             add("Sets whether player must be sleeping to skip night");
         }};
     }
@@ -74,24 +102,5 @@ public class VetoCommand extends BsCommand {
     @Override
     public String getDescriptionAsString() {
         return "Sets whether player must be sleeping to skip night";
-    }
-
-    private enum VetoSetting {
-        ON("on", true),
-        OFF("off", false);
-
-        final String str;
-        final boolean value;
-
-        VetoSetting(String str, boolean value) {
-            this.str = str;
-            this.value = value;
-        }
-
-        static Optional<VetoSetting> settingFromString(String str) {
-            return Arrays.stream(VetoSetting.values())
-                    .filter(setting -> setting.str.equals(str))
-                    .findAny();
-        }
     }
 }
