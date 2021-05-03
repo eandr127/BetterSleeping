@@ -244,6 +244,8 @@ public class BetterSleeping extends JavaPlugin implements Reloadable {
             logger.log("Using required sleepers counter 'percentage' which is set to " + needed + "% of players required");
         }
 
+        VetoList vetoList = new ObjectiveVetoList("sleepVetoList", Objects.requireNonNull(getServer().getScoreboardManager()).getMainScoreboard());
+        vetoList.initializeList();
 
         // get a runnable for each world
 
@@ -273,7 +275,7 @@ public class BetterSleeping extends JavaPlugin implements Reloadable {
                         int sleepDelay = sleepConfig.getInt("setter.delay");
                         timeChanger = new TimeSetter(world, sleepDelay);
                     }
-                    SleepersRunnable runnable = new SleepersRunnable(world, messenger, timeChanger, calculator);
+                    SleepersRunnable runnable = new SleepersRunnable(world, messenger, timeChanger, calculator, vetoList);
                     runnables.put(world, runnable);
                     numWorlds++;
                 } else {
@@ -334,9 +336,6 @@ public class BetterSleeping extends JavaPlugin implements Reloadable {
 
         // bStats handles enabling/disabling metrics collection, no check required
         new BStatsHandler(this, config, sleeping, bypassing, essentialsHook, buffsHandler, timeSetToDayCounter, isMultiWorldServer);
-
-        VetoList vetoList = new ObjectiveVetoList("sleepVetoList", Objects.requireNonNull(getServer().getScoreboardManager()).getMainScoreboard());
-        vetoList.initializeList();
 
         Objects.requireNonNull(this.getCommand("bettersleeping")).setExecutor(new CommandHandler(this, messenger, buffsHandler, bypassChecker, runnables, vetoList));
     }

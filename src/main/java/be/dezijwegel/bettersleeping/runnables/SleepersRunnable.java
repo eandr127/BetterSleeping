@@ -8,6 +8,7 @@ import be.dezijwegel.bettersleeping.sleepersneeded.AbsoluteNeeded;
 import be.dezijwegel.bettersleeping.timechange.TimeChanger;
 import be.dezijwegel.bettersleeping.util.Debugger;
 import be.dezijwegel.bettersleeping.util.SleepStatus;
+import be.dezijwegel.bettersleeping.vetolist.VetoList;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -30,6 +31,7 @@ public class SleepersRunnable extends BukkitRunnable {
     private final SleepersNeededCalculator sleepersCalculator;
     private final TimeChanger timeChanger;
     private final Messenger messenger;
+    private final VetoList vetoList;
 
     // Variables for internal working
     private int numNeeded;
@@ -41,7 +43,7 @@ public class SleepersRunnable extends BukkitRunnable {
     /**
      * A runnable that will detect time changes and its cause
      */
-    public SleepersRunnable(World world, Messenger messenger, TimeChanger timeChanger, SleepersNeededCalculator sleepersCalculator) {
+    public SleepersRunnable(World world, Messenger messenger, TimeChanger timeChanger, SleepersNeededCalculator sleepersCalculator, VetoList vetoList) {
         this.world = world;
         this.messenger = messenger;
         this.oldTime = world.getTime();
@@ -51,6 +53,7 @@ public class SleepersRunnable extends BukkitRunnable {
         this.sleepers = new HashSet<>();
         this.customSleepers = new HashSet<>();
         this.bedLeaveTracker = new HashMap<>();
+        this.vetoList = vetoList;
     }
 
     /**
@@ -102,8 +105,12 @@ public class SleepersRunnable extends BukkitRunnable {
             new MsgEntry("<remaining_sleeping>", "" + remaining)
         );
 
+        boolean noVetoedSleep = this.world.getPlayers()
+                .stream()
+                .noneMatch(p -> vetoList.getVetoStatus(p) && !this.sleepers.contains(p.getUniqueId()));
+
         boolean isEnoughSleepingEmpty = false;
-        if (this.sleepers.size() == this.numNeeded) {
+        if (this.sleepers.size() == this.numNeeded && noVetoedSleep) {
             isEnoughSleepingEmpty = ! this.messenger.sendMessage(
                 this.world.getPlayers(), "enough_sleeping", false,
                 new MsgEntry("<player>", ChatColor.stripColor(player.getName())),
@@ -113,7 +120,7 @@ public class SleepersRunnable extends BukkitRunnable {
             );
         }
 
-        if ((isEnoughSleepingEmpty && this.sleepers.size() <= this.numNeeded) || this.sleepers.size() < this.numNeeded) {
+        if (isEnoughSleepingEmpty || this.sleepers.size() < this.numNeeded) {
             List<Player> players = this.world.getPlayers();
             players.remove( player );
             messenger.sendMessage(
@@ -159,11 +166,12 @@ public class SleepersRunnable extends BukkitRunnable {
         }
 
         // Check if enough players WERE sleeping but now not anymore
-        if (
-            this.sleepers.size() < previousSize &&
-            previousSize >= this.numNeeded &&
-            this.sleepers.size() < this.numNeeded &&
-            !this.timeChanger.removedStorm(false)
+        boolean tooFewSleepers =
+                this.sleepers.size() < previousSize &&
+                previousSize >= this.numNeeded &&
+                this.sleepers.size() < this.numNeeded;
+        boolean vetoedSleeperLeft = vetoList.getVetoStatus(player);
+        if ((tooFewSleepers || vetoedSleeperLeft) && !this.timeChanger.removedStorm(false)
         ) {
             int remaining = this.numNeeded - this.sleepers.size();
             this.messenger.sendMessage(
@@ -284,7 +292,11 @@ public class SleepersRunnable extends BukkitRunnable {
 
         this.sleepers.removeAll( awakePlayers );
 
-        if (this.sleepers.size() >= this.numNeeded) {
+        boolean noVetoedSleep = this.world.getPlayers()
+                .stream()
+                .noneMatch(p -> vetoList.getVetoStatus(p) && !this.sleepers.contains(p.getUniqueId()));
+
+        if (this.sleepers.size() >= this.numNeeded && noVetoedSleep) {
             this.timeChanger.tick(this.sleepers.size(), this.numNeeded);
         }
     }
