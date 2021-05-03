@@ -19,6 +19,8 @@ import be.dezijwegel.bettersleeping.timechange.TimeSetter;
 import be.dezijwegel.bettersleeping.timechange.TimeSmooth;
 import be.dezijwegel.bettersleeping.messaging.ConsoleLogger;
 import be.dezijwegel.bettersleeping.messaging.ScreenMessenger;
+import be.dezijwegel.bettersleeping.vetolist.ObjectiveVetoList;
+import be.dezijwegel.bettersleeping.vetolist.VetoList;
 import be.dezijwegel.betteryaml.BetterYaml;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -333,7 +335,10 @@ public class BetterSleeping extends JavaPlugin implements Reloadable {
         // bStats handles enabling/disabling metrics collection, no check required
         new BStatsHandler(this, config, sleeping, bypassing, essentialsHook, buffsHandler, timeSetToDayCounter, isMultiWorldServer);
 
-        Objects.requireNonNull(this.getCommand("bettersleeping")).setExecutor(new CommandHandler(this, messenger, buffsHandler, bypassChecker, runnables));
+        VetoList vetoList = new ObjectiveVetoList("sleepVetoList", Objects.requireNonNull(getServer().getScoreboardManager()).getMainScoreboard());
+        vetoList.initializeList();
+
+        Objects.requireNonNull(this.getCommand("bettersleeping")).setExecutor(new CommandHandler(this, messenger, buffsHandler, bypassChecker, runnables, vetoList));
     }
 
 

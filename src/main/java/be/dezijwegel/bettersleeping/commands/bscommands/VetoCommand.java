@@ -2,18 +2,24 @@ package be.dezijwegel.bettersleeping.commands.bscommands;
 
 import be.dezijwegel.bettersleeping.messaging.Messenger;
 import be.dezijwegel.bettersleeping.messaging.MsgEntry;
+import be.dezijwegel.bettersleeping.vetolist.VetoList;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.*;
 
 public class VetoCommand extends BsCommand {
 
+    private final VetoList vetoList;
 
-    public VetoCommand(Messenger messenger)
+    public VetoCommand(Messenger messenger, VetoList vetoList)
     {
         super( messenger );
+
+        this.vetoList = vetoList;
     }
 
 
@@ -26,18 +32,24 @@ public class VetoCommand extends BsCommand {
             return true;
         }
 
+        Player playerSender = (Player)commandSender;
+
         if (arguments.length < 2)
         {
+            boolean isVetoed = vetoList.getVetoStatus(playerSender);
+
             final char CHECKMARK = '\u2714', X = '\u2718';
             messenger.sendMessage(commandSender, "veto_status", true, new MsgEntry("<var>",
-                    String.valueOf(Math.random() > 0.5 ? CHECKMARK : X)));
+                    String.valueOf(isVetoed ? CHECKMARK : X)));
         }
         else
         {
             Optional<VetoSetting> setting = VetoSetting.settingFromString(arguments[1].toLowerCase());
 
-            setting.ifPresentOrElse(x -> commandSender.sendMessage("Setting veto status to " + x.value),
-                    () -> commandSender.sendMessage(ChatColor.RED + "The unknown option '" + arguments[1] + "'. Execute /bs veto [on/off]"));
+            setting.ifPresentOrElse(x -> {
+                commandSender.sendMessage("Setting veto status to " + x.value);
+                vetoList.setVetoStatus(playerSender, x.value);
+            }, () -> commandSender.sendMessage(ChatColor.RED + "The unknown option '" + arguments[1] + "'. Execute /bs veto [on/off]"));
         }
 
         return true;

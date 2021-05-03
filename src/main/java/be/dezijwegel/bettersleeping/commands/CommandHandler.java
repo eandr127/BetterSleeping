@@ -7,6 +7,7 @@ import be.dezijwegel.bettersleeping.messaging.Messenger;
 import be.dezijwegel.bettersleeping.messaging.MsgEntry;
 import be.dezijwegel.bettersleeping.permissions.BypassChecker;
 import be.dezijwegel.bettersleeping.runnables.SleepersRunnable;
+import be.dezijwegel.bettersleeping.vetolist.VetoList;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -28,7 +29,7 @@ public class CommandHandler implements CommandExecutor {
 
     private final Map<String, String> shortcuts;
 
-    public CommandHandler(BetterSleeping plugin, Messenger messenger, BuffsHandler buffsHandler, BypassChecker bypassChecker, Map<World, SleepersRunnable> sleepHandlers)
+    public CommandHandler(BetterSleeping plugin, Messenger messenger, BuffsHandler buffsHandler, BypassChecker bypassChecker, Map<World, SleepersRunnable> sleepHandlers, VetoList vetoList)
     {
         this.messenger = messenger;
 
@@ -42,7 +43,7 @@ public class CommandHandler implements CommandExecutor {
         BsCommand buffs     = new BuffsCommand(messenger, buffsHandler, bypassChecker);
         BsCommand sleep     = new SleepCommand(messenger, sleepHandlers);
         BsCommand shout     = new ShoutCommand(messenger);
-        BsCommand veto      = new VetoCommand(messenger);
+        BsCommand veto      = new VetoCommand(messenger, vetoList);
 
         playerCommands.put("version",   version );
         playerCommands.put("help"   ,   help    );
