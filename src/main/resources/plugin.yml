@@ -28,12 +28,12 @@ permissions:
         description: Collection of commands that default users may want access to
         children:
             bettersleeping.reload: false
-            bettersleeping.status: true
-            bettersleeping.help: true
+            bettersleeping.status: false
+            bettersleeping.help: false
             bettersleeping.help.admin: false
-            bettersleeping.buffs: true
+            bettersleeping.buffs: false
             bettersleeping.version: false
-            bettersleeping.shout: true
+            bettersleeping.shout: false
             bettersleeping.sleepcommand: false
             bettersleeping.veto: true
     bettersleeping.admin:

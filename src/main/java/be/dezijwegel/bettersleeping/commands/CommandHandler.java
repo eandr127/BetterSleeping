@@ -108,10 +108,10 @@ public class CommandHandler implements CommandExecutor {
         if (commandMap.containsKey( cmd ))
         {
             BsCommand bsCommand = commandMap.get(cmd);
-//            if (commandSender.hasPermission( bsCommand.getPermission() ) || commandSender instanceof ConsoleCommandSender)
+            if (commandSender.hasPermission( bsCommand.getPermission() ) || commandSender instanceof ConsoleCommandSender)
                 return bsCommand.execute(commandSender, command, alias, arguments);
-//            else
-//                messenger.sendMessage(commandSender, "no_permission", true, new MsgEntry("<var>", "/bs " + cmd));
+            else
+                messenger.sendMessage(commandSender, "no_permission", true, new MsgEntry("<var>", "/bs " + cmd));
         }
         else
         {

@@ -34,6 +34,12 @@ public class VetoCommand extends BsCommand implements TabCompleter {
     @Override
     public boolean execute(CommandSender commandSender, Command command, String alias, String[] arguments)
     {
+        if ( ! commandSender.hasPermission( getPermission() ))
+        {
+            messenger.sendMessage(commandSender, "no_permission", true, new MsgEntry("<var>", "/bs " + arguments[0]));
+            return true;
+        }
+
         Player playerSender = (Player)commandSender;
 
         String options = "/ns [" +
@@ -94,7 +100,7 @@ public class VetoCommand extends BsCommand implements TabCompleter {
     @Override
     public String getPermission()
     {
-        return "bettersleeping.veto";
+        return "bukkit.command.help";
     }
 
 
