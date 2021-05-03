@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public enum VetoSetting {
-    ALWAYS("dontskip", true),
-    NEVER("alwaysskip", false),
-    ONE_NIGHT("onenight", true);
+    ALWAYS("dontskip", "Not skipping night", true),
+    NEVER("alwaysskip", "Always skipping night", false),
+    ONE_NIGHT("onenight", "Not skipping just tonight", true);
 
     static {
         ALWAYS.nextMorningState = ALWAYS;
@@ -15,13 +15,15 @@ public enum VetoSetting {
     }
 
     private final String name;
+    private final String messageId;
     private final boolean isVeto;
 
     // Must set after all enums are initialized
     private VetoSetting nextMorningState;
 
-    VetoSetting(String name, boolean isVeto) {
+    VetoSetting(String name, String messageId, boolean isVeto) {
         this.name = name;
+        this.messageId = messageId;
         this.isVeto = isVeto;
     }
 
@@ -33,6 +35,10 @@ public enum VetoSetting {
 
     public String getName() {
         return name;
+    }
+
+    public String getMessageId(boolean withPlayerPrefix) {
+        return (withPlayerPrefix ? "<player>: " : "") + messageId;
     }
 
     public boolean isVeto() {

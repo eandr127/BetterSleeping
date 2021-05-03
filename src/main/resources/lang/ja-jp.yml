@@ -110,14 +110,6 @@ buff_received: "よく休んだので<var>のバフがかかりました。"
 debuff_received: "徹夜で疲れたので<var>のデバフがかかりました。"
 
 
-# ------ #
-# Vetoes |
-# ------ #
-
-# Players who slept AND receive buffs will get this message
-veto_status: "拒否権ステータス：<var>"
-
-
 # -------------------- #
 # Commands/Permissions |
 # -------------------- #

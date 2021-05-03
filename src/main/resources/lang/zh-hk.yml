@@ -110,14 +110,6 @@ buff_received: "你感覺到精力充沛， 並收到[<var>.一個 Buff. <var> �
 debuff_received: "你感到疲倦同眼瞓， 並收到[<var>.一個 Debuff. <var> 個 Debuff]。"
 
 
-# ------ #
-# Vetoes |
-# ------ #
-
-# Players who slept AND receive buffs will get this message
-veto_status: "否決權狀態：<var>"
-
-
 # -------------------- #
 # Commands/Permissions |
 # -------------------- #

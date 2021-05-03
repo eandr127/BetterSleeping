@@ -106,7 +106,7 @@ public class Messenger {
         // Get the prefix and put it before the message
         if (includePrefix)
         {
-            String prefix = doShortenPrefix ? "&6[BS3] &3" : "&6[BetterSleeping] &3";
+            String prefix = doShortenPrefix ? "&6[NS] &3" : "&6[BetterSleeping] &3";
             message = prefix + message;
         }
 

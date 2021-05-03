@@ -34,13 +34,12 @@ public class VetoCommand extends BsCommand implements TabCompleter {
     @Override
     public boolean execute(CommandSender commandSender, Command command, String alias, String[] arguments)
     {
-        if ( ! commandSender.hasPermission( getPermission() ))
-        {
-            messenger.sendMessage(commandSender, "no_permission", true, new MsgEntry("<var>", "/bs " + arguments[0]));
-            return true;
-        }
-
         Player playerSender = (Player)commandSender;
+
+        String options = "/ns [" +
+            Stream.concat(Arrays.stream(VetoSetting.values())
+                .map(VetoSetting::getName), Stream.of("get", "beg", "help"))
+                .collect(Collectors.joining("/")) + "]";
 
         String flag;
         if (arguments.length < 2)
@@ -51,43 +50,41 @@ public class VetoCommand extends BsCommand implements TabCompleter {
             flag = arguments[1];
         }
 
-        if (flag.equals("get")) {
-            boolean isVetoed = vetoList.getVetoStatus(playerSender).isVeto();
+        switch (flag) {
+            case "get":
+                VetoSetting vetoStatus = vetoList.getVetoStatus(playerSender);
 
-            final char CHECKMARK = '\u2714', X = '\u2718';
-
-            if (arguments.length < 3) {
-                messenger.sendMessage(commandSender, "veto_status", true, new MsgEntry("<var>",
-                        String.valueOf(isVetoed ? CHECKMARK : X)));
-            }
-            else if(arguments[2].equals("all")) {
-                for (Player p : playerSender.getWorld().getPlayers()) {
-                    boolean playerVetoed = vetoList.getVetoStatus(p).isVeto();
-                    messenger.sendMessage(commandSender, p.getDisplayName() + ": <var>", true, new MsgEntry("<var>",
-                            String.valueOf(playerVetoed ? CHECKMARK : X)));
+                if (arguments.length < 3) {
+                    messenger.sendMessage(commandSender, vetoStatus.getMessageId(false), true);
+                } else if (arguments[2].equals("all")) {
+                    for (Player p : playerSender.getWorld().getPlayers()) {
+                        messenger.sendMessage(commandSender, vetoList.getVetoStatus(p).getMessageId(true), true,
+                                new MsgEntry("<player>", p.getDisplayName()));
+                    }
+                } else {
+                    commandSender.sendMessage(ChatColor.RED + "The unknown option '" + arguments[2] + "'. Execute /bs veto get [all]");
                 }
-            } else {
-                commandSender.sendMessage(ChatColor.RED + "The unknown option '" + arguments[2] + "'. Execute /bs veto get [all]");
-            }
-        } else if (flag.equals("beg")) {
-            beg.execute(commandSender, command, alias, new String[]{arguments[1]});
-        }
-        else {
-            Optional<VetoSetting> setting = VetoSetting.settingFromString(flag.toLowerCase());
+                break;
+            case "beg":
+                beg.execute(commandSender, command, alias, new String[]{arguments[1]});
+                break;
+            case "help":
+                commandSender.sendMessage(ChatColor.GREEN + "Usage: " + options);
+                break;
+            default:
+                Optional<VetoSetting> setting = VetoSetting.settingFromString(flag.toLowerCase());
 
-            setting.ifPresentOrElse(x -> {
-                // Using shorthand shouldn't remove existing veto
-                if (arguments.length < 2 && vetoList.getVetoStatus(playerSender).isVeto()) {
-                    commandSender.sendMessage(ChatColor.RED + "Already vetoing");
-                    return;
-                }
+                setting.ifPresentOrElse(x -> {
+                    // Using shorthand shouldn't remove existing veto
+                    if (arguments.length < 2 && vetoList.getVetoStatus(playerSender).isVeto()) {
+                        commandSender.sendMessage(ChatColor.RED + "Already vetoing");
+                        return;
+                    }
 
-                commandSender.sendMessage("Setting veto status to " + x.getName());
-                vetoList.setVetoStatus(playerSender, x);
-            }, () -> commandSender.sendMessage(ChatColor.RED + "The unknown option '" + arguments[1] + "'. Execute /bs veto [" +
-                    Arrays.stream(VetoSetting.values())
-                            .map(VetoSetting::getName)
-                            .collect(Collectors.joining("/")) + "]"));
+                    messenger.sendMessage(commandSender, x.getMessageId(false), true);
+                    vetoList.setVetoStatus(playerSender, x);
+                }, () -> commandSender.sendMessage(ChatColor.RED + "The unknown option '" + arguments[1] + "'. Execute " + options));
+                break;
         }
 
         return true;
@@ -121,7 +118,7 @@ public class VetoCommand extends BsCommand implements TabCompleter {
             return new ArrayList<>();
         } else if (args.length == 2) {
             List<String> matches = new ArrayList<>();
-            StringUtil.copyPartialMatches(args[1], Stream.concat(Stream.of("", "get"), Arrays.stream(VetoSetting.values()).map(VetoSetting::getName)).collect(Collectors.toList()), matches);
+            StringUtil.copyPartialMatches(args[1], Stream.concat(Stream.of("", "get", "beg", "help"), Arrays.stream(VetoSetting.values()).map(VetoSetting::getName)).collect(Collectors.toList()), matches);
             return matches;
         } else if (args.length == 3) {
             if (args[1].equals("get")) {

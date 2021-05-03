@@ -110,14 +110,6 @@ buff_received: ""
 debuff_received: ""
 
 
-# ------ #
-# Vetoes |
-# ------ #
-
-# Players who slept AND receive buffs will get this message
-veto_status: "Veto status: <var>"
-
-
 # -------------------- #
 # Commands/Permissions |
 # -------------------- #
