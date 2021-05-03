@@ -10,7 +10,7 @@ commands:
         description: See all BetterSleeping commands
         usage: Perform /bettersleeping help or /bs help to see a list of commands!
         default: true
-        aliases: [bs]
+        aliases: [bs, ns]
 permissions:
     bettersleeping.*:
         description: Gives access to all BetterSleeping commands

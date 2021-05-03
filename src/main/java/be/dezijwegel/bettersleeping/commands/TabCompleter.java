@@ -61,7 +61,6 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
         // Sort the result
         Collections.sort(matches);
 
-
         return matches;
     }
 
@@ -81,6 +80,7 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String alias, @NotNull String[] arguments)
     {
+        arguments = CommandHandler.handleAlias(alias, arguments);
 
         // Only support console and player
         if ( !(commandSender instanceof Player) && !(commandSender instanceof ConsoleCommandSender))
@@ -95,11 +95,25 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
 
             return getAllowedCommands(commands, commandSender);
 
-        else if (arguments.length == 1)
+        else {
 
-            return getAllowedCommands(commands, commandSender, arguments[0]);
+            List<String> allowedCommands = getAllowedCommands(commands, commandSender, arguments[0]);
 
-        else  return new ArrayList<>();
+            if (allowedCommands.size() == 1 && allowedCommands.get(0).equals(arguments[0])) {
+                BsCommand cmd = commands.get(allowedCommands.get(0));
+
+                if(cmd instanceof org.bukkit.command.TabCompleter) {
+                    org.bukkit.command.TabCompleter tabCompleter = (org.bukkit.command.TabCompleter) cmd;
+                    return tabCompleter.onTabComplete(commandSender, command, alias, arguments);
+                }
+            }
+
+            if (arguments.length == 1) {
+                return allowedCommands;
+            } else {
+                return new ArrayList<>();
+            }
+        }
     }
 
 }

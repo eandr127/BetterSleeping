@@ -69,9 +69,21 @@ public class CommandHandler implements CommandExecutor {
         plugin.getCommand("bettersleeping").setTabCompleter(new TabCompleter(playerCommands, consoleCommands));
     }
 
+    static String[] handleAlias(@NotNull String alias, @NotNull String[] arguments) {
+        if (alias.equals("ns")) {
+            String[] newArguments = new String[arguments.length + 1];
+            System.arraycopy(arguments, 0, newArguments, 1, arguments.length);
+            newArguments[0] = "veto";
+            return newArguments;
+        }
+
+        return arguments;
+    }
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String alias, @NotNull String[] arguments) {
+
+        arguments = handleAlias(alias, arguments);
 
         // Get user commands or console commands
         Map<String, BsCommand> commandMap;
